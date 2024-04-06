@@ -14,7 +14,7 @@ using Terraria.ModLoader;
 using Terraria.ModLoader.Core;
 using Terraria.ObjectData;
 
-namespace Arbour.Content.Tiles.Banners;
+namespace NPCUtils;
 
 /// <summary>
 /// Defines a banner tile to be autoloaded by <see cref="AutoloadBannerAttribute"/>.
@@ -176,47 +176,5 @@ public class BaseBannerItem : ModItem
         Item.DefaultToPlaceableTile(PlaceID);
         Item.Size = new Vector2(12, 30);
         Item.rare = ItemRarityID.Blue;
-    }
-}
-
-/// <summary>
-/// Loads all banners, and detours <see cref="NPCLoader"/>'s SetDefaults to set <see cref="ModNPC.Banner"/> and <see cref="ModNPC.BannerItem"/>.
-/// </summary>
-public class BannerLoader
-{
-    static Hook setDefaultsDetour;
-
-    internal static void Load(Mod mod)
-    {
-        var types = AssemblyManager.GetLoadableTypes(mod.Code).Where(x => !x.IsAbstract && typeof(ModNPC).IsAssignableFrom(x) && Attribute.IsDefined(x, typeof(AutoloadBannerAttribute)));
-
-        foreach (var type in types)
-        {
-            var banner = type.GetCustomAttribute(typeof(AutoloadBannerAttribute));
-            var npc = mod.Find<ModNPC>(type.Name);
-            
-            mod.AddContent(new BaseBannerTile(npc.Type, npc.Name + "Banner"));
-            mod.AddContent(new BaseBannerItem(npc.Name + "BannerItem", mod.Find<ModTile>(npc.Name + "Banner").Type, npc.Type));
-        }
-        
-        setDefaultsDetour = new Hook(typeof(NPCLoader).GetMethod("SetDefaults", BindingFlags.Static | BindingFlags.NonPublic), SetBannerIfAutoloaded);
-        setDefaultsDetour.Apply();
-    }
-
-    internal static void Unload()
-    {
-        setDefaultsDetour.Undo();
-        setDefaultsDetour.Dispose();
-    }
-
-    private static void SetBannerIfAutoloaded(Action<NPC, bool> orig, NPC self, bool createModNPC)
-    {
-        orig(self, createModNPC);
-
-        if (self.ModNPC is not null && Attribute.IsDefined(self.ModNPC.GetType(), typeof(AutoloadBannerAttribute)))
-        {
-            self.ModNPC.Banner = self.type;
-            self.ModNPC.BannerItem = self.ModNPC.Mod.Find<ModItem>(self.ModNPC.Name + "BannerItem").Type;
-        }
     }
 }
