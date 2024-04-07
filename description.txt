@@ -1,3 +1,6 @@
+--- NPC Utilities ---
+by GabeHasWon
+
 NPCUtils adds some tools for modders to make modding easier. 
 
 Namely:
