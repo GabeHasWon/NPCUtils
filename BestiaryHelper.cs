@@ -86,7 +86,15 @@ public class BestiaryHelper
 public static class BestiaryExtensions
 {
     /// <summary>
-    /// Automatically applies the localized entry and conditions to the npc.
+    /// Automatically applies the localized entry and conditions to the npc.<br/><br/>
+    /// Valid entries are as follows:<br/><b>Biomes:</b><br/><c>TheCorruption TheCrimson Surface Graveyard UndergroundJungle TheUnderworld TheDungeon Underground TheHallow UndergroundMushroom
+    /// Jungle Caverns UndergroundSnow Ocean SurfaceMushroom UndergroundDesert Snow Desert Meteor Oasis SpiderNest TheTemple CorruptUndergroundDesert CrimsonUndergroundDesert
+    /// HallowUndergroundDesert HallowDesert CorruptDesert CrimsonDesert Granite UndergroundCorruption UndergroundCrimson UndergroundHallow Marble CorruptIce HallowIce CrimsonIce
+    /// Sky NebulaPillar VortexPillar StardustPillar SolarPillar</c><br/>
+    /// <b>Times:</b><br/><c>DayTime NightTime</c><br/>
+    /// <b>Events:</b><br/><c>Rain SlimeRain WindyDay BloodMoon Halloween Christmas Eclipse Party Blizzard Sandstorm</c><br/><br/>
+    /// For example, adding an entry could be like this:<br/><br/>
+    /// <code>entry.AddInfo(this, "NightTime Snow");</code>
     /// </summary>
     /// <param name="bestiaryEntry">The entry to modify.</param>
     /// <param name="npc">The NPC this entry is attatched to.</param>

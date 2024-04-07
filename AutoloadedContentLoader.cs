@@ -28,14 +28,16 @@ public class AutoloadedContentLoader
 
                 mod.AddContent(new BaseBannerTile(npc.Type, npc.Name + "Banner"));
                 mod.AddContent(new BaseBannerItem(npc.Name + "BannerItem", mod.Find<ModTile>(npc.Name + "Banner").Type, npc.Type));
+                mod.Logger.Debug($"[NPCUtils] BannerAutoload: Added {npc.Name}Banner to {mod.Name}.");
             }
 
-            if (Attribute.IsDefined(type, typeof(AutoloadCritterItemAttribute)))
+            if (Attribute.IsDefined(type, typeof(AutoloadCritterAttribute)))
             {
-                var banner = type.GetCustomAttribute(typeof(AutoloadCritterItemAttribute));
+                var banner = type.GetCustomAttribute(typeof(AutoloadCritterAttribute));
                 var npc = mod.Find<ModNPC>(type.Name);
 
                 mod.AddContent(new CritterItem(npc.Name + "Item", npc.FullName, npc.Texture));
+                mod.Logger.Debug($"[NPCUtils] CritterItem: Added {npc.Name}Item to {mod.Name}.");
             }
         }
 
@@ -62,7 +64,7 @@ public class AutoloadedContentLoader
             self.ModNPC.BannerItem = self.ModNPC.Mod.Find<ModItem>(self.ModNPC.Name + "BannerItem").Type;
         }
 
-        if (Attribute.IsDefined(self.ModNPC.GetType(), typeof(AutoloadCritterItemAttribute)))
+        if (Attribute.IsDefined(self.ModNPC.GetType(), typeof(AutoloadCritterAttribute)))
             self.catchItem = self.ModNPC.Mod.Find<ModItem>(self.ModNPC.Name + "Item").Type;
     }
 }

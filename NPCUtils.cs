@@ -41,15 +41,22 @@ public class NPCUtils : Mod
     }
 
     /// <summary>
-    /// Autoloads all banners and critter items in the mod, given that the associated NPC uses <see cref="AutoloadBannerAttribute"/> or <see cref="AutoloadCritterItemAttribute"/>.
+    /// Autoloads all banners and critter items in the mod, given that the associated NPC uses <see cref="AutoloadBannerAttribute"/> or <see cref="AutoloadCritterAttribute"/>.<br/>
+    /// Make sure to use <see cref="UnloadMod(Mod)"/> if you use this in order to properly reload content if needed.
     /// </summary>
     /// <param name="mod">The mod to autoload banners from.</param>
     public static void AutoloadModBannersAndCritters(Mod mod)
     {
-        if (AutoloadedContent.Contains(mod.Name))
+        if (!AutoloadedContent.Contains(mod.Name))
         {
             AutoloadedContentLoader.Load(mod);
             AutoloadedContent.Add(mod.Name);
         }
     }
+
+    /// <summary>
+    /// Removes the flag for having autoloaded content for the given mod, allowing rebuilds to add content again properly.
+    /// </summary>
+    /// <param name="mod">The mod to remove the flag from.</param>
+    public static void UnloadMod(Mod mod) => AutoloadedContent.Remove(mod.Name);
 }
