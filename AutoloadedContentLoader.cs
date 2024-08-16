@@ -44,8 +44,11 @@ public class AutoloadedContentLoader
             }
         }
 
-        mod.Logger.Debug($"[NPCUtils] AutoloadBanner: Autoloaded banners: {banners[..^2]}");
-        mod.Logger.Debug($"[NPCUtils] CritterItem: Autoloaded critters: {critters[..^2]}.");
+        if (banners.Length > 2)
+            mod.Logger.Debug($"[NPCUtils] AutoloadBanner: Autoloaded banners: {banners[..^2]}");
+
+        if (critters.Length > 2)
+            mod.Logger.Debug($"[NPCUtils] CritterItem: Autoloaded critters: {critters[..^2]}.");
 
         setDefaultsDetour = new Hook(typeof(NPCLoader).GetMethod("SetDefaults", BindingFlags.Static | BindingFlags.NonPublic), SetAutoloadedValues, true);
     }
