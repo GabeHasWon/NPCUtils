@@ -28,9 +28,19 @@ public class BaseBannerTile : ModTile
     public readonly string InternalName;
 
     /// <summary>
+    /// The internal name of this banner, which is NPCNameBanner.
+    /// </summary>
+    public readonly string InternalTexture;
+
+    /// <summary>
     /// Overrides the internal name to use the <see cref="InternalName"/>.
     /// </summary>
     public sealed override string Name => InternalName;
+
+    /// <summary>
+    /// Overrides the texture to use the desired texture in <see cref="InternalTexture"/>.
+    /// </summary>
+    public override string Texture => InternalTexture;
 
     /// <summary>
     /// Creates a banner tile with no name and no internal name.
@@ -39,6 +49,7 @@ public class BaseBannerTile : ModTile
     {
         NPCType = -1;
         InternalName = "";
+        InternalTexture = "";
     }
 
     /// <summary>
@@ -46,8 +57,10 @@ public class BaseBannerTile : ModTile
     /// </summary>
     /// <param name="npcType">The associated NPC ID.</param>
     /// <param name="internalName">The internal name of the banner.</param>
-    public BaseBannerTile(int npcType, string internalName)
+    /// <param name="texture">The internal texture path of the banner.</param>
+    public BaseBannerTile(int npcType, string internalName, string texture)
     {
+        InternalTexture = texture;
         NPCType = npcType;
         InternalName = internalName;
     }
@@ -107,9 +120,10 @@ public class BaseBannerTile : ModTile
 /// </summary>
 public class BaseBannerItem : ModItem
 {
-    readonly string InternalName;
-    readonly int PlaceID;
-    readonly int NPCType;
+    string InternalName;
+    string InternalTexture;
+    int PlaceID;
+    int NPCType;
 
     /// <summary>
     /// New banners must be cloned.
@@ -122,6 +136,11 @@ public class BaseBannerItem : ModItem
     public sealed override string Name => InternalName;
 
     /// <summary>
+    /// New banners must also use the internal texture.
+    /// </summary>
+    public sealed override string Texture => InternalTexture;
+
+    /// <summary>
     /// New banners use only the BannerBonus tooltip line.
     /// </summary>
     public override LocalizedText Tooltip => Language.GetText("CommonItemTooltip.BannerBonus");
@@ -132,6 +151,7 @@ public class BaseBannerItem : ModItem
     public BaseBannerItem()
     {
         InternalName = "";
+        InternalTexture = "";
         PlaceID = TileID.Dirt;
         NPCType = NPCID.None;
     }
@@ -142,11 +162,28 @@ public class BaseBannerItem : ModItem
     /// <param name="internalName">The given internal name.</param>
     /// <param name="placeID">The banner ID to place.</param>
     /// <param name="npcType">The NPC type associated with the banner. Used for the tooltip.</param>
-    public BaseBannerItem(string internalName, int placeID, int npcType)
+    /// <param name="texture">The given texture.</param>
+    public BaseBannerItem(string internalName, int placeID, int npcType, string texture)
     {
         InternalName = internalName;
+        InternalTexture = texture;
         PlaceID = placeID;
         NPCType = npcType;
+    }
+
+    /// <summary>
+    /// Clones the current <see cref="BaseBannerItem"/>.
+    /// </summary>
+    /// <param name="newEntity">The new entity this is being cloned to.</param>
+    /// <returns>The clone.</returns>
+    public override ModItem Clone(Item newEntity)
+    {
+        var clone = base.Clone(newEntity) as BaseBannerItem;
+        clone.InternalName = InternalName;
+        clone.InternalTexture = InternalTexture;
+        clone.PlaceID = PlaceID;
+        clone.NPCType = NPCType;
+        return clone;
     }
 
     /// <summary>

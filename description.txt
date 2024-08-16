@@ -6,7 +6,7 @@ NPCUtils adds some tools for modders to make modding easier.
 Namely:
 - BestiaryHelper (through bestiaryEntry.AddInfo), changing creating bestiaries to one line, automatically generating & using localization
 - AutoloadBannerAttribute, which automatically loads a banner tile and item for the given ModNPC it's attached to
-- AutoloadCritterAttribute, which automatically loads a critter & sets the given ModNPC as a critter
+- AutoloadCritterAttribute, which automatically loads a critter & sets the given ModNPC as a critter, alongside value and rarity
 - LootExtensions, which adds a ton of extensions onto ILoot and LeadingConditionRule for ease-of-use.
 
 Everything has extensive XML documentation - just make sure to use the pdb, dll and xml which can be found in the GitHub's releases.

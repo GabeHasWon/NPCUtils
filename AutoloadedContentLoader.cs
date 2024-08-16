@@ -5,6 +5,7 @@ using System.Reflection;
 using Terraria.ModLoader.Core;
 using Terraria.ModLoader;
 using Terraria;
+using System.Diagnostics;
 
 namespace NPCUtils;
 
@@ -18,6 +19,8 @@ public class AutoloadedContentLoader
     internal static void Load(Mod mod)
     {
         var types = AssemblyManager.GetLoadableTypes(mod.Code).Where(x => !x.IsAbstract && typeof(ModNPC).IsAssignableFrom(x));
+        string banners = "";
+        string critters  = "";
 
         foreach (var type in types)
         {
@@ -26,29 +29,32 @@ public class AutoloadedContentLoader
                 var banner = type.GetCustomAttribute(typeof(AutoloadBannerAttribute));
                 var npc = mod.Find<ModNPC>(type.Name);
 
-                mod.AddContent(new BaseBannerTile(npc.Type, npc.Name + "Banner"));
-                mod.AddContent(new BaseBannerItem(npc.Name + "BannerItem", mod.Find<ModTile>(npc.Name + "Banner").Type, npc.Type));
-                mod.Logger.Debug($"[NPCUtils] BannerAutoload: Added {npc.Name}Banner to {mod.Name}.");
+                mod.AddContent(new BaseBannerTile(npc.Type, npc.Name + "Banner", npc.Texture + "Banner"));
+                mod.AddContent(new BaseBannerItem(npc.Name + "BannerItem", mod.Find<ModTile>(npc.Name + "Banner").Type, npc.Type, npc.Texture + "BannerItem"));
+                banners += $"{mod.Name}.{npc.Name}Banner, ";
             }
 
             if (Attribute.IsDefined(type, typeof(AutoloadCritterAttribute)))
             {
-                var banner = type.GetCustomAttribute(typeof(AutoloadCritterAttribute));
+                var banner = type.GetCustomAttribute(typeof(AutoloadCritterAttribute)) as AutoloadCritterAttribute;
                 var npc = mod.Find<ModNPC>(type.Name);
 
-                mod.AddContent(new CritterItem(npc.Name + "Item", npc.FullName, npc.Texture));
-                mod.Logger.Debug($"[NPCUtils] CritterItem: Added {npc.Name}Item to {mod.Name}.");
+                mod.AddContent(new CritterItem(npc.Name + "Item", npc.FullName, npc.Texture, banner.Value, banner.Rarity));
+                critters += $"{mod.Name}.{npc.Name}Item, ";
             }
         }
 
-        setDefaultsDetour = new Hook(typeof(NPCLoader).GetMethod("SetDefaults", BindingFlags.Static | BindingFlags.NonPublic), SetAutoloadedValues);
-        setDefaultsDetour.Apply();
+        mod.Logger.Debug($"[NPCUtils] AutoloadBanner: Autoloaded banners: {banners[..^2]}");
+        mod.Logger.Debug($"[NPCUtils] CritterItem: Autoloaded critters: {critters[..^2]}.");
+
+        setDefaultsDetour = new Hook(typeof(NPCLoader).GetMethod("SetDefaults", BindingFlags.Static | BindingFlags.NonPublic), SetAutoloadedValues, true);
     }
 
     internal static void Unload()
     {
         setDefaultsDetour.Undo();
         setDefaultsDetour.Dispose();
+        setDefaultsDetour = null;
     }
 
     private static void SetAutoloadedValues(Action<NPC, bool> orig, NPC self, bool createModNPC)

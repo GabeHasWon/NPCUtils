@@ -11,18 +11,29 @@ namespace NPCUtils;
 /// Autoloads the given critter item if placed on an NPC.
 /// </summary>
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
-public class AutoloadCritterAttribute : Attribute
+public class AutoloadCritterAttribute(int value = 0, byte rarity = ItemRarityID.White) : Attribute
 {
+    /// <summary>
+    /// Value, in copper coins, of the critter.
+    /// </summary>
+    public int Value = value;
+
+    /// <summary>
+    /// Rarity of the critter.
+    /// </summary>
+    public byte Rarity = rarity;
 }
 
 /// <summary>
 /// Defines a critter item that spawns a critter.
 /// </summary>
-/// <param name="name"></param>
-/// <param name="npcKey"></param>
-/// <param name="texture"></param>
+/// <param name="name">Internal name of the item.</param>
+/// <param name="npcKey">NPC key (full name, such as Egg/EggMonster) to reference.</param>
+/// <param name="texture">Texture of the item.</param>
+/// <param name="rarity">Rarity of the item. Defaults to ItemRarityID.White.</param>
+/// <param name="value">Value of the item, in copper coins. Defaults to 0.</param>
 [Autoload(false)]
-public class CritterItem(string name, string npcKey, string texture) : ModItem
+public sealed class CritterItem(string name, string npcKey, string texture, int value, byte rarity) : ModItem
 {
     /// <summary>
     /// Overrides name with the internal name.
@@ -32,7 +43,7 @@ public class CritterItem(string name, string npcKey, string texture) : ModItem
     /// <summary>
     /// New instances must be cloned.
     /// </summary>
-    protected sealed override bool CloneNewInstances => true;
+    protected override bool CloneNewInstances => true;
 
     /// <summary>
     /// Overrides texture to be the original texture path with "Item" appended.
@@ -42,6 +53,8 @@ public class CritterItem(string name, string npcKey, string texture) : ModItem
     private string _name = name;
     private string _texturePath = texture;
     private string _npcKey = npcKey;
+    private int _value = value;
+    private byte _rarity = rarity;
 
     /// <summary>
     /// Clones the item.
@@ -52,6 +65,8 @@ public class CritterItem(string name, string npcKey, string texture) : ModItem
         entity._name = _name;
         entity._npcKey = _npcKey;
         entity._texturePath = _texturePath;
+        entity._value = _value;
+        entity._rarity = _rarity;
         return entity;
     }
 
@@ -101,8 +116,20 @@ public class CritterItem(string name, string npcKey, string texture) : ModItem
         Item.makeNPC = (short)modNPC.Type;
         Item.autoReuse = true;
         Item.consumable = true;
+        Item.rare = _rarity;
+        Item.value = _value;
     }
 
-    public override bool CanUseItem(Player player) => !Collision.SolidCollision(Main.MouseWorld - new Vector2(10), 20, 20) &&
-        player.IsInTileInteractionRange(Player.tileTargetX, Player.tileTargetY, TileReachCheckSettings.Simple);
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="player"></param>
+    /// <returns></returns>
+    public override bool CanUseItem(Player player)
+    {
+        var modNPC = ModContent.Find<ModNPC>(_npcKey);
+
+        return !Collision.SolidCollision(Main.MouseWorld - new Vector2(10), modNPC.NPC.width, modNPC.NPC.height) &&
+            player.IsInTileInteractionRange(Player.tileTargetX, Player.tileTargetY, TileReachCheckSettings.Simple);
+    }
 }
