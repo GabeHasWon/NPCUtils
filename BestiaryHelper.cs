@@ -92,9 +92,11 @@ public static class BestiaryExtensions
     /// HallowUndergroundDesert HallowDesert CorruptDesert CrimsonDesert Granite UndergroundCorruption UndergroundCrimson UndergroundHallow Marble CorruptIce HallowIce CrimsonIce
     /// Sky NebulaPillar VortexPillar StardustPillar SolarPillar</c><br/>
     /// <b>Times:</b><br/><c>DayTime NightTime</c><br/>
-    /// <b>Events:</b><br/><c>Rain SlimeRain WindyDay BloodMoon Halloween Christmas Eclipse Party Blizzard Sandstorm</c><br/><br/>
+    /// <b>Events:</b><br/><c>Rain SlimeRain WindyDay BloodMoon Halloween Christmas Eclipse Party Events.Blizzard Sandstorm</c><br/>
+    /// <b>Visuals:</b><br/><c>Sun Moon EclipseSun Visuals.PumpkinMoon Visuals.FrostMoon Meteor Rain Visuals.Blizzard</c><br/>
+    /// <b>Invasions:</b><br/><c>Goblin Pirates Martian Invasions.PumpkinMoon Invasions.FrostMoon OldOnesArmy FrostLegion</c><br/><br/>
     /// For example, adding an entry could be like this:<br/><br/>
-    /// <code>entry.AddInfo(this, "NightTime Snow");</code>
+    /// <code>entry.AddInfo(this, "NightTime Snow Moon");</code>
     /// </summary>
     /// <param name="bestiaryEntry">The entry to modify.</param>
     /// <param name="npc">The NPC this entry is attatched to.</param>
