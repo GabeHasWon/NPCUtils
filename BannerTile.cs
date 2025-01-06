@@ -5,6 +5,7 @@ using System.Linq;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.Enums;
+using Terraria.GameContent.Drawing;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
@@ -81,15 +82,17 @@ public class BaseBannerTile : ModTile
 		Main.tileNoAttach[Type] = true;
 		Main.tileLavaDeath[Type] = true;
 
-		TileObjectData.newTile.CopyFrom(TileObjectData.Style1x2Top);
+        TileID.Sets.ReplaceTileBreakDown[Type] = true;
+        TileID.Sets.DisableSmartCursor[Type] = true;
+        TileID.Sets.MultiTileSway[Type] = true;
+
+        TileObjectData.newTile.CopyFrom(TileObjectData.Style1x2Top);
 		TileObjectData.newTile.Height = 3;
 		TileObjectData.newTile.CoordinateHeights = [16, 16, 16];
 		TileObjectData.newTile.StyleHorizontal = true;
 		TileObjectData.newTile.AnchorTop = new AnchorData(AnchorType.SolidTile | AnchorType.SolidSide | AnchorType.SolidBottom, TileObjectData.newTile.Width, 0);
         TileObjectData.newTile.DrawYOffset = -2;
         TileObjectData.addTile(Type);
-
-		TileID.Sets.DisableSmartCursor[Type] = true;
 
 		AddMapEntry(new Color(13, 88, 130));
 	
@@ -104,8 +107,13 @@ public class BaseBannerTile : ModTile
     /// <param name="closer"><inheritdoc/></param>
     public override void NearbyEffects(int i, int j, bool closer)
 	{
-		Main.SceneMetrics.NPCBannerBuff[NPCType] = true;
-		Main.SceneMetrics.hasBanner = true;
+        int itemType = Mod.Find<ModItem>(Name + "Item").Type;
+
+        if (ItemID.Sets.BannerStrength.IndexInRange(itemType) && ItemID.Sets.BannerStrength[itemType].Enabled)
+        {
+            Main.SceneMetrics.NPCBannerBuff[NPCType] = true;
+            Main.SceneMetrics.hasBanner = true;
+        }
 	}
 
     /// <inheritdoc/>
@@ -114,6 +122,21 @@ public class BaseBannerTile : ModTile
 		if (i % 2 == 1)
 			spriteEffects = SpriteEffects.FlipHorizontally;
 	}
+
+    /// <summary>
+    /// Draws tile sway.
+    /// </summary>
+    /// <param name="i">X position.</param>
+    /// <param name="j">Y position.</param>
+    /// <param name="spriteBatch">spriteBatch to use.</param>
+    /// <returns>Whether the tile draws.</returns>
+    public override bool PreDraw(int i, int j, SpriteBatch spriteBatch)
+    {
+        if (TileObjectData.IsTopLeft(Main.tile[i, j]))
+            Main.instance.TilesRenderer.AddSpecialPoint(i, j, TileDrawing.TileCounterType.MultiTileVine);
+
+        return false;
+    }
 }
 
 /// <summary>
