@@ -10,7 +10,7 @@ namespace NPCUtils;
 /// <summary>
 /// Autoloads the given critter item if placed on an NPC.
 /// </summary>
-[AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
 public class AutoloadCritterAttribute(int value = 0, byte rarity = ItemRarityID.White) : Attribute
 {
     /// <summary>
