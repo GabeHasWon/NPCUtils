@@ -91,7 +91,6 @@ public class BaseBannerTile : ModTile
 		TileObjectData.newTile.CoordinateHeights = [16, 16, 16];
 		TileObjectData.newTile.StyleHorizontal = true;
 		TileObjectData.newTile.AnchorTop = new AnchorData(AnchorType.SolidTile | AnchorType.SolidSide | AnchorType.SolidBottom, TileObjectData.newTile.Width, 0);
-        TileObjectData.newTile.DrawYOffset = -2;
         TileObjectData.addTile(Type);
 
 		AddMapEntry(new Color(13, 88, 130));
@@ -114,13 +113,6 @@ public class BaseBannerTile : ModTile
             Main.SceneMetrics.NPCBannerBuff[NPCType] = true;
             Main.SceneMetrics.hasBanner = true;
         }
-	}
-
-    /// <inheritdoc/>
-	public override void SetSpriteEffects(int i, int j, ref SpriteEffects spriteEffects)
-	{
-		if (i % 2 == 1)
-			spriteEffects = SpriteEffects.FlipHorizontally;
 	}
 
     /// <summary>
