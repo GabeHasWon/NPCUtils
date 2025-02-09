@@ -69,7 +69,7 @@ public class BaseBannerTile : ModTile
     /// <summary>
     /// Disables loading if NPCType is invalid.
     /// </summary>
-    /// <param name="mod"></param>
+    /// <param name="mod">The mod loading the banner.</param>
     /// <returns></returns>
     public override bool IsLoadingEnabled(Mod mod) => NPCType != -1;
 
@@ -86,14 +86,20 @@ public class BaseBannerTile : ModTile
         TileID.Sets.DisableSmartCursor[Type] = true;
         TileID.Sets.MultiTileSway[Type] = true;
 
-        TileObjectData.newTile.CopyFrom(TileObjectData.Style1x2Top);
+        TileObjectData.newTile.CopyFrom(TileObjectData.Style1x2Top); // Default style
 		TileObjectData.newTile.Height = 3;
 		TileObjectData.newTile.CoordinateHeights = [16, 16, 16];
 		TileObjectData.newTile.StyleHorizontal = true;
-		TileObjectData.newTile.AnchorTop = new AnchorData(AnchorType.SolidTile | AnchorType.SolidSide | AnchorType.SolidBottom, TileObjectData.newTile.Width, 0);
+		TileObjectData.newTile.AnchorTop = new AnchorData(AnchorType.SolidTile | AnchorType.SolidSide | AnchorType.SolidBottom | AnchorType.PlanterBox, TileObjectData.newTile.Width, 0);
+
+        // Platform-placed style
+        TileObjectData.newAlternate.CopyFrom(TileObjectData.newTile);
+        TileObjectData.newAlternate.AnchorTop = new AnchorData(AnchorType.Platform, TileObjectData.newTile.Width, 0);
+        TileObjectData.newAlternate.DrawYOffset = -8;
+        TileObjectData.addAlternate(0);
         TileObjectData.addTile(Type);
 
-		AddMapEntry(new Color(13, 88, 130));
+        AddMapEntry(new Color(13, 88, 130));
 	
 		DustType = -1;
     }
