@@ -5,7 +5,6 @@ using System.Reflection;
 using Terraria.ModLoader.Core;
 using Terraria.ModLoader;
 using Terraria;
-using System.Diagnostics;
 
 namespace NPCUtils;
 
@@ -18,6 +17,9 @@ public class AutoloadedContentLoader
 
     internal static void Load(Mod mod)
     {
+        if (mod is null)
+            return;
+
         var types = AssemblyManager.GetLoadableTypes(mod.Code).Where(x => !x.IsAbstract && typeof(ModNPC).IsAssignableFrom(x));
         string banners = "";
         string critters  = "";
@@ -25,22 +27,28 @@ public class AutoloadedContentLoader
         foreach (var type in types)
         {
             if (Attribute.IsDefined(type, typeof(AutoloadBannerAttribute)))
-            { 
-                var banner = type.GetCustomAttribute(typeof(AutoloadBannerAttribute));
-                var npc = mod.Find<ModNPC>(type.Name);
-
-                mod.AddContent(new BaseBannerTile(npc.Type, npc.Name + "Banner", npc.Texture + "Banner"));
-                mod.AddContent(new BaseBannerItem(npc.Name + "BannerItem", mod.Find<ModTile>(npc.Name + "Banner").Type, npc.Type, npc.Texture + "BannerItem"));
-                banners += $"{mod.Name}.{npc.Name}Banner, ";
+            {
+                if (mod.TryFind(type.Name, out ModNPC npc))
+                {
+                    mod.AddContent(new BaseBannerTile(npc.Type, npc.Name + "Banner", npc.Texture + "Banner"));
+                    mod.AddContent(new BaseBannerItem(npc.Name + "BannerItem", mod.Find<ModTile>(npc.Name + "Banner").Type, npc.Type, npc.Texture + "BannerItem"));
+                    banners += $"{mod.Name}.{npc.Name}Banner, ";
+                }
+                else
+                    mod.Logger.Error($"[NPCUtils] AutoloadBanner: Failed to get npc of name {type.Name}?");
             }
 
             if (Attribute.IsDefined(type, typeof(AutoloadCritterAttribute)))
             {
                 var banner = type.GetCustomAttribute(typeof(AutoloadCritterAttribute)) as AutoloadCritterAttribute;
-                var npc = mod.Find<ModNPC>(type.Name);
 
-                mod.AddContent(new CritterItem(npc.Name + "Item", npc.FullName, npc.Texture, banner.Value, banner.Rarity));
-                critters += $"{mod.Name}.{npc.Name}Item, ";
+                if (mod.TryFind(type.Name, out ModNPC npc))
+                {
+                    mod.AddContent(new CritterItem(npc.Name + "Item", npc.FullName, npc.Texture, banner.Value, banner.Rarity));
+                    critters += $"{mod.Name}.{npc.Name}Item, ";
+                }
+                else
+                    mod.Logger.Error($"[NPCUtils] AutoloadCritter: Failed to get npc of name {type.Name}?");
             }
         }
 
@@ -55,9 +63,12 @@ public class AutoloadedContentLoader
 
     internal static void Unload()
     {
-        setDefaultsDetour.Undo();
-        setDefaultsDetour.Dispose();
-        setDefaultsDetour = null;
+        if (setDefaultsDetour is not null)
+        {
+            setDefaultsDetour.Undo();
+            setDefaultsDetour.Dispose();
+            setDefaultsDetour = null;
+        }
     }
 
     private static void SetAutoloadedValues(Action<NPC, bool> orig, NPC self, bool createModNPC)
