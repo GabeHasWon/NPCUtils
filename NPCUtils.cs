@@ -4,7 +4,7 @@ using Terraria.ModLoader;
 namespace NPCUtils;
 
 /// <summary>
-/// The mod. Used for loading all utilities contained in the mod.
+/// Used for loading all utilities contained in the mod.
 /// </summary>
 public class NPCUtils : Mod
 {
@@ -13,9 +13,9 @@ public class NPCUtils : Mod
     private static int BestiaryLoadedCount = 0;
 
     /// <summary>
-    /// Loads <see cref="BestiaryHelper"/> if it's not yet loaded. This should be called in <see cref="Mod.Load"/>, alongside <see cref="UnloadBestiaryHelper"/> in <see cref="Mod.Unload"/>.
+    /// Loads <see cref="BestiaryHelper"/> if it's not yet loaded. This should be called in <see cref="Mod.Load"/>, and is unloaded automatically.
     /// </summary>
-    public static void TryLoadBestiaryHelper()
+    public static void TryLoadBestiaryHelper(Mod mod)
     {
         if (BestiaryLoadedCount == 0)
         {
@@ -24,17 +24,18 @@ public class NPCUtils : Mod
         }
 
         BestiaryLoadedCount++;
+        mod.AddContent(new ContentUnloader(false));
     }
 
     /// <summary>
     /// Unloads <see cref="BestiaryHelper"/> if no other mod is using it. 
     /// </summary>
-    public static void UnloadBestiaryHelper()
+    internal static void UnloadBestiaryHelper()
     {
         BestiaryLoadedCount--;
 
         if (BestiaryLoadedCount < 0)
-            throw new System.Exception("BestiaryHelper unloaded too many times! Only call it once in Mod.Unload.");
+            throw new System.Exception("BestiaryHelper unloaded too many times! How is this possible?");
 
         if (BestiaryLoadedCount == 0)
             BestiaryHelper.Self = null;
@@ -42,7 +43,7 @@ public class NPCUtils : Mod
 
     /// <summary>
     /// Autoloads all banners and critter items in the mod, given that the associated NPC uses <see cref="AutoloadBannerAttribute"/> or <see cref="AutoloadCritterAttribute"/>.<br/>
-    /// Make sure to use <see cref="UnloadMod"/> if you use this in order to properly reload content if needed.
+    /// This is unloaded automatically.
     /// </summary>
     /// <param name="mod">The mod to autoload banners from.</param>
     public static void AutoloadModBannersAndCritters(Mod mod)
@@ -51,6 +52,8 @@ public class NPCUtils : Mod
         {
             AutoloadedContentLoader.Load(mod);
             AutoloadedContent.Add(mod.Name);
+
+            mod.AddContent(new ContentUnloader(true));
         }
     }
 
@@ -58,7 +61,7 @@ public class NPCUtils : Mod
     /// Removes the flag for having autoloaded content for the given mod, allowing rebuilds to add content again properly.
     /// </summary>
     /// <param name="mod">The mod to remove the flag from.</param>
-    public static void UnloadMod(Mod mod)
+    internal static void UnloadMod(Mod mod)
     {
         AutoloadedContent.Remove(mod.Name);
 
@@ -66,5 +69,22 @@ public class NPCUtils : Mod
         {
             AutoloadedContentLoader.Unload();
         }
+    }
+}
+
+internal class ContentUnloader(bool unloadMod) : ILoadable
+{
+    private Mod _mod = null;
+
+    public void Load(Mod mod) => _mod = mod;
+
+    public void Unload()
+    {
+        if (unloadMod)
+            NPCUtils.UnloadMod(_mod);
+        else
+            NPCUtils.UnloadBestiaryHelper();
+
+        _mod.Logger.Debug($"[NPCUtils] Successfully unloaded {(unloadMod ? "automatic content" : "bestiary helper reference")}");
     }
 }
